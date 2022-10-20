@@ -1,6 +1,6 @@
 locals {
-  main_image    = regex("^(?:(?P<url>[^/]+))?(?:(?P<image>[^:]*))??(?::(?P<tag>[^:]*))", images.main)
-  webhook_image = regex("^(?:(?P<url>[^/]+))?(?:(?P<image>[^:]*))??(?::(?P<tag>[^:]*))", images.webhook)
+  main_image    = regex("^(?:(?P<url>[^/]+))?(?:(?P<image>[^:]*))??(?::(?P<tag>[^:]*))", var.images.main)
+  webhook_image = regex("^(?:(?P<url>[^/]+))?(?:(?P<image>[^:]*))??(?::(?P<tag>[^:]*))", var.images.webhook)
 }
 
 resource "helm_release" "this" {
