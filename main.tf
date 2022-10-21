@@ -9,7 +9,7 @@ resource "helm_release" "this" {
   chart            = var.chart
   namespace        = var.namespace
   create_namespace = var.create_namespace
-  version          = var.version
+  version          = var.release_version
 
   values = var.values
 

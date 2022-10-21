@@ -28,7 +28,7 @@ variable "create_namespace" {
   default     = true
 }
 
-variable "version" {
+variable "release_version" {
   description = "version of helm release"
   type        = string
   default     = null
