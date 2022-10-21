@@ -28,6 +28,12 @@ variable "create_namespace" {
   default     = true
 }
 
+variable "version" {
+  description = "version of helm release"
+  type        = string
+  default     = null
+}
+
 variable "images" {
   description = "Map of images"
   type        = map(string)
