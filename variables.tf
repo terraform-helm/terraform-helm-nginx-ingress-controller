@@ -45,3 +45,15 @@ variable "values" {
   type        = list(any)
   default     = []
 }
+
+variable "set_values" {
+  description = "Forced set values"
+  type        = any
+  default     = []
+}
+
+variable "set_sensitive_values" {
+  description = "Forced set_sensitive values"
+  type        = any
+  default     = []
+}
