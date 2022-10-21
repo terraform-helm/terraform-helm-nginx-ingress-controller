@@ -1,6 +1,15 @@
 locals {
-  main_image    = regex("^(?:(?P<url>[^/]+))?(?:/(?P<image>[^:]*))??(?::(?P<tag>[^:]*))", var.images.main)
-  webhook_image = regex("^(?:(?P<url>[^/]+))?(?:/(?P<image>[^:]*))??(?::(?P<tag>[^:]*))", var.images.webhook)
+  repo_regex    = "^(?:(?P<url>[^/]+))?(?:/(?P<image>[^:]*))??(?::(?P<tag>[^:]*))"
+  main_image    = contains(keys(var.images), "main") ? regex(local.repo_regex, var.images.main) : {}
+  webhook_image = contains(keys(var.images), "webhook") ? regex(local.repo_regex, var.images.webhook) : {}
+
+  main_pre_value    = "controller.image"
+  webhook_pre_value = "controller.admissionWebhooks.patch.image"
+
+  main_set_values    = local.main_image != {} ? [{ name = "${local.main_pre_value}.registry", value = local.main_image.url }, { name = "${local.main_pre_value}.image", value = local.main_image.image }, { name = "${local.main_pre_value}.tag", value = local.main_image.tag }, { name = "${local.main_pre_value}.digest", value = "false" }] : []
+  webhook_set_values = local.webhook_image != {} ? [{ name = "${local.webhook_pre_value}.registry", value = local.webhook_image.url }, { name = "${local.webhook_pre_value}.image", value = local.main_image.image }, { name = "${local.webhook_pre_value}.tag", value = local.main_image.tag }, { name = "${local.webhook_pre_value}.digest", value = "false" }] : []
+
+  set_values = concat(var.set_values, local.main_set_values, local.webhook_set_values)
 }
 
 resource "helm_release" "this" {
@@ -13,42 +22,25 @@ resource "helm_release" "this" {
 
   values = var.values
 
-  set {
-    name  = "controller.image.registry"
-    value = local.main_image.url
+  dynamic "set" {
+    iterator = each_item
+    for_each = local.set_values
+
+    content {
+      name  = each_item.value.name
+      value = each_item.value.value
+      type  = try(each_item.value.type, null)
+    }
   }
 
-  set {
-    name  = "controller.image.image"
-    value = local.main_image.image
-  }
+  dynamic "set_sensitive" {
+    iterator = each_item
+    for_each = var.set_sensitive_values
 
-  set {
-    name  = "controller.image.tag"
-    value = local.main_image.tag
-  }
-
-  set {
-    name  = "controller.image.digest"
-    value = "false"
-  }
-
-  set {
-    name  = "controller.admissionWebhooks.patch.image.registry"
-    value = local.webhook_image.url
-  }
-
-  set {
-    name  = "controller.admissionWebhooks.patch.image.image"
-    value = local.webhook_image.image
-  }
-
-  set {
-    name  = "controller.admissionWebhooks.patch.image.tag"
-    value = local.webhook_image.tag
-  }
-  set {
-    name  = "controller.admissionWebhooks.patch.image.digest"
-    value = "false"
+    content {
+      name  = each_item.value.name
+      value = each_item.value.value
+      type  = try(each_item.value.type, null)
+    }
   }
 }
