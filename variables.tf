@@ -57,3 +57,9 @@ variable "set_sensitive_values" {
   type        = any
   default     = []
 }
+
+variable "helm_config" {
+  description = "Map of helm config"
+  type        = map(any)
+  default     = {}
+}

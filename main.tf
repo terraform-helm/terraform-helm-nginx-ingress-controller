@@ -10,37 +10,25 @@ locals {
   webhook_set_values = local.webhook_image != {} ? [{ name = "${local.webhook_pre_value}.registry", value = local.webhook_image.url }, { name = "${local.webhook_pre_value}.image", value = local.webhook_image.image }, { name = "${local.webhook_pre_value}.tag", value = local.webhook_image.tag }, { name = "${local.webhook_pre_value}.digest", value = "false" }] : []
 
   set_values = concat(var.set_values, local.main_set_values, local.webhook_set_values)
+
+  default_helm_config = {
+    name             = var.name
+    repository       = var.repository
+    chart            = var.chart
+    namespace        = var.namespace
+    create_namespace = var.create_namespace
+    version          = var.release_version
+    values           = var.values
+  }
+  helm_config = merge(local.default_helm_config, var.helm_config)
+
 }
 
-resource "helm_release" "this" {
-  name             = var.name
-  repository       = var.repository
-  chart            = var.chart
-  namespace        = var.namespace
-  create_namespace = var.create_namespace
-  version          = var.release_version
 
-  values = var.values
-
-  dynamic "set" {
-    iterator = each_item
-    for_each = local.set_values
-
-    content {
-      name  = each_item.value.name
-      value = each_item.value.value
-      type  = try(each_item.value.type, null)
-    }
-  }
-
-  dynamic "set_sensitive" {
-    iterator = each_item
-    for_each = var.set_sensitive_values
-
-    content {
-      name  = each_item.value.name
-      value = each_item.value.value
-      type  = try(each_item.value.type, null)
-    }
-  }
+module "helm" {
+  source               = "github.com/terraform-helm/terraform-helm?ref=0.1"
+  helm_config          = local.helm_config
+  set_values           = local.set_values
+  set_sensitive_values = var.set_sensitive_values
 }
+
