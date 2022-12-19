@@ -15,8 +15,8 @@ No providers.
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_helm"></a> [helm](#module\_helm) | github.com/terraform-helm/terraform-helm | 0.1 |
-| <a name="module_main_image"></a> [main\_image](#module\_main\_image) | github.com/littlejo/terraform-helm-images-set-values | n/a |
-| <a name="module_webhook_image"></a> [webhook\_image](#module\_webhook\_image) | github.com/littlejo/terraform-helm-images-set-values | n/a |
+| <a name="module_main_image"></a> [main\_image](#module\_main\_image) | github.com/littlejo/terraform-helm-images-set-values | v0.1 |
+| <a name="module_webhook_image"></a> [webhook\_image](#module\_webhook\_image) | github.com/littlejo/terraform-helm-images-set-values | v0.1 |
 
 ## Resources
 
@@ -29,7 +29,7 @@ No resources.
 | <a name="input_chart"></a> [chart](#input\_chart) | Chart of helm release | `string` | `"ingress-nginx"` | no |
 | <a name="input_create_namespace"></a> [create\_namespace](#input\_create\_namespace) | Create namespace ? | `bool` | `true` | no |
 | <a name="input_helm_config"></a> [helm\_config](#input\_helm\_config) | Map of helm config | `map(any)` | `{}` | no |
-| <a name="input_images"></a> [images](#input\_images) | Map of images | `map(string)` | `{}` | no |
+| <a name="input_images"></a> [images](#input\_images) | Map of images | <pre>object({<br>    main    = optional(string)<br>    webhook = optional(string)<br>  })</pre> | <pre>{<br>  "main": null,<br>  "webhook": null<br>}</pre> | no |
 | <a name="input_name"></a> [name](#input\_name) | Name of helm release | `string` | `"ingress-nginx"` | no |
 | <a name="input_namespace"></a> [namespace](#input\_namespace) | namespace of helm release | `string` | `"ingress-nginx"` | no |
 | <a name="input_release_version"></a> [release\_version](#input\_release\_version) | version of helm release | `string` | `null` | no |
