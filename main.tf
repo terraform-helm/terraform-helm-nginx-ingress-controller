@@ -1,15 +1,5 @@
 locals {
-  repo_regex    = "^(?:(?P<url>[^/]+))?(?:/(?P<image>[^:]*))??(?::(?P<tag>[^:]*))"
-  main_image    = contains(keys(var.images), "main") ? regex(local.repo_regex, var.images.main) : {}
-  webhook_image = contains(keys(var.images), "webhook") ? regex(local.repo_regex, var.images.webhook) : {}
-
-  main_pre_value    = "controller.image"
-  webhook_pre_value = "controller.admissionWebhooks.patch.image"
-
-  main_set_values    = local.main_image != {} ? [{ name = "${local.main_pre_value}.registry", value = local.main_image.url }, { name = "${local.main_pre_value}.image", value = local.main_image.image }, { name = "${local.main_pre_value}.tag", value = local.main_image.tag }, { name = "${local.main_pre_value}.digest", value = "false" }] : []
-  webhook_set_values = local.webhook_image != {} ? [{ name = "${local.webhook_pre_value}.registry", value = local.webhook_image.url }, { name = "${local.webhook_pre_value}.image", value = local.webhook_image.image }, { name = "${local.webhook_pre_value}.tag", value = local.webhook_image.tag }, { name = "${local.webhook_pre_value}.digest", value = "false" }] : []
-
-  set_values = concat(var.set_values, local.main_set_values, local.webhook_set_values)
+  set_values = concat(var.set_values, module.main_image.set_values, module.webhook_image.set_values)
 
   default_helm_config = {
     name             = var.name
@@ -24,6 +14,21 @@ locals {
 
 }
 
+module "main_image" {
+  source     = "github.com/littlejo/terraform-helm-images-set-values"
+  repo_regex = var.repo_regex
+  repo_url   = var.images.main
+  pre_value  = "controller.image"
+  type       = "nginx"
+}
+
+module "webhook_image" {
+  source     = "github.com/littlejo/terraform-helm-images-set-values"
+  repo_regex = var.repo_regex
+  repo_url   = var.images.webhook
+  pre_value  = "controller.admissionWebhooks.patch.image"
+  type       = "nginx"
+}
 
 module "helm" {
   source               = "github.com/terraform-helm/terraform-helm?ref=0.1"

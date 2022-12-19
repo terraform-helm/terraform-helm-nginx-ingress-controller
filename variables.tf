@@ -63,3 +63,9 @@ variable "helm_config" {
   type        = map(any)
   default     = {}
 }
+
+variable "repo_regex" {
+  description = "Repo regex to identifier different part of the string"
+  type        = string
+  default     = "^(?:(?P<url>[^/]+))?(?:/(?P<image>[^:]*))??(?::(?P<tag>[^:]*))"
+}
